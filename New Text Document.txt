@@ -1,0 +1,161 @@
+
+// IOT BASED STAMPEDE DETECTION PREDICTION & AVOIDANCE
+// CODE BY ATHAR SAYED 
+// 4 Servo motors (4 Digital Pins)
+// 4 Led's (4 Digital Pins)
+// 1 Buzzer ( 1 Digital Pin)
+// 4 Vibration Sensors (4 Digital Pins)
+// 1 OLED Display ( SCL SDA Pins 2 Digital Pins )
+
+#include<Servo.h>
+#include <SPI.h>   
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>  // OLED DSPLY LIBRARIES 
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#include <Fonts/FreeSerif9pt7b.h>  // OLED display text font
+ 
+// VIB SENSR  X 4 
+   int vib_pin1 = 25 ;  
+   int vib_pin2 = 33 ;   
+   int vib_pin3 = 32 ; 
+   int vib_pin4 = 35 ;  
+
+    // LED X 4
+   int led_pin1 = 13 ;   //GREEN   
+   int led_pin2 = 12 ;   //GREEN
+   int led_pin3 = 14 ;   //WHITE  
+   int led_pin4 = 27 ;   // RED 
+   
+  // BUZZER X 1 
+  const int buzzer = 26 ;                                                                   
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins) 
+
+// Initializing 4 servo motors 
+Servo myservo1,myservo2,myservo3,myservo4;
+
+void setup() {
+  
+  pinMode(led_pin1,OUTPUT);  // Setting LED as Output
+  pinMode(led_pin2,OUTPUT);
+  pinMode(led_pin3,OUTPUT);
+  pinMode(led_pin4,OUTPUT);
+  pinMode(buzzer,OUTPUT);  // Setting buzzer as Output 
+
+  // SERVO MOTOR X 4
+  // Object of servo is created to call servo ( ) pin where servo is attached to be mentioned
+  myservo1.attach(15);       // ENTRY SERVO    
+  myservo2.attach(2);       // EMERGENCY EXIT UP 
+  myservo3.attach(4);       // EMERGENCY EXIT DOWN   
+  myservo4.attach(5);       // EXIT SERVO
+  
+  Serial.begin(9600);
+  
+if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+    Serial.println("SSD1306 allocation failed");
+    for(;;);
+  }
+    delay(2000);
+  display.setFont(&FreeSerif9pt7b);
+  display.clearDisplay();
+  display.setTextSize(1);             
+  display.setTextColor(WHITE);        
+  display.setCursor(2,34);             
+  display.println("B.TECH PRJCT!");
+  display.display();
+  delay(2000);
+  display.clearDisplay(); 
+  
+}
+
+void loop() {
+
+  long measurement1 =TP_init1();
+  delay(50);
+  long measurement2 =TP_init2();
+  delay(50);
+  long measurement3 =TP_init3();
+  delay(50);
+  long measurement4 =TP_init4();
+  delay(50);
+    Serial.println(measurement1);
+    Serial.println(measurement2);
+    Serial.println(measurement3);
+    Serial.println(measurement4);
+
+    if(measurement1 == 0 && measurement2 == 0 && measurement3 == 0 && measurement4 == 0 )
+    {
+     digitalWrite(led_pin1,HIGH);
+     display.setTextSize(1);
+     display.setTextColor(WHITE); 
+     display.setCursor(2,34); 
+     display.println("AREA VACANT");
+     
+    }
+
+    if(measurement1 > 3000 && measurement2 > 3000 && measurement3 > 3000 && measurement4 > 3000 )
+    {
+      digitalWrite(led_pin2,HIGH);
+      display.setTextSize(1);
+      display.setTextColor(WHITE); 
+      display.setCursor(2,34);
+      display.println("        ");
+    
+    }
+    
+
+    if(measurement1 > 3000 && measurement2 > 3000 && measurement3 > 3000 && measurement4 > 3000 )
+    {
+     digitalWrite(led_pin3,HIGH);  
+     display.setTextSize(1);
+     display.setTextColor(WHITE);
+     display.setCursor(2,34);
+     display.println("     ");
+     
+    }
+
+    if(measurement1 > 3000 && measurement2 > 3000 && measurement3 > 3000 && measurement4 > 3000 )
+    {
+      digitalWrite(led_pin4,HIGH); 
+      digitalWrite(buzzer,HIGH);
+      display.setTextSize(1);
+       display.setTextColor(WHITE);   
+      display.setCursor(2,34);
+      display.println(" ");
+      delay(100);     
+        
+    }
+    
+}
+
+
+long TP_init1(){
+  delay(10);
+  long measurement1=pulseIn (vib_pin1, HIGH);  // wait for the vibration sensor pin to get HIGH and returns measurement
+  return measurement1;
+}
+
+
+long TP_init2()
+{
+  delay(10);
+  long measurement2=pulseIn(vib_pin2,HIGH);  
+  return measurement2;
+  
+}
+long TP_init3()
+{
+  delay(10);
+  long measurement3=pulseIn(vib_pin3,HIGH);  
+  return measurement3;
+  
+}
+long TP_init4()
+{
+  delay(10);
+  long measurement4=pulseIn(vib_pin4,HIGH);  
+  return measurement4;
+  
+}
